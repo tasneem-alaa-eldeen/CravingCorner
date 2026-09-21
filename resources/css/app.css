@@ -11,16 +11,16 @@
    =================================================================== */
 
 :root {
-    --cc-ink: #1F3B2C;
-    --cc-ink-light: #2C5240;
-    --cc-paper: #F7F4EC;
+    --cc-ink: #7a4b58;
+    --cc-ink-light: #996573;
+    --cc-paper: #faf3f4;
     --cc-surface: #FFFFFF;
-    --cc-line: #D8CFBA;
-    --cc-mustard: #E2A63B;
-    --cc-mustard-dark: #C98A22;
-    --cc-clay: #C1443B;
-    --cc-sage: #6B9080;
-    --cc-text-muted: #7A7566;
+    --cc-line: #e8d7dc;
+    --cc-mustard: #e5a4b0;
+    --cc-mustard-dark: #b87684;
+    --cc-clay: #a86b79;
+    --cc-sage: #9e7c84;
+    --cc-text-muted: #8c6d73;
 }
 
 body {
@@ -97,8 +97,18 @@ body {
 /* ---- Cards ("order ticket" style) ---- */
 .card-ticket {
     background-color: var(--cc-surface);
-    border: 2px dashed var(--cc-line);
+    border: 4px dashed var(--cc-line);
     border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+}
+.card-ticket img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+    margin-bottom: 12px;
 }
 
 .card-plain {
@@ -141,7 +151,7 @@ body {
     background-color: var(--cc-ink);
 }
 .nav-link-cc {
-    color: rgba(247, 244, 236, 0.75);
+    color: rgba(249, 244, 247, 0.75);
     font-weight: 600;
     font-size: 0.875rem;
     padding: 0.4rem 0.1rem;
@@ -176,15 +186,12 @@ body {
    Fixed attachment so it doesn't repeat awkwardly on scroll.
    Opacities are intentionally bold enough to actually read as color. */
 body {
-    background-color: var(--cc-paper);
-    background-image:
-        radial-gradient(circle at 8% 8%, rgba(226, 166, 59, 0.28) 0%, transparent 42%),
-        radial-gradient(circle at 95% 12%, rgba(107, 144, 128, 0.24) 0%, transparent 38%),
-        radial-gradient(circle at 15% 92%, rgba(193, 68, 59, 0.14) 0%, transparent 35%),
-        radial-gradient(circle at 80% 85%, rgba(31, 59, 44, 0.16) 0%, transparent 40%),
-        radial-gradient(circle, rgba(31, 59, 44, 0.09) 1.6px, transparent 1.6px);
-    background-size: auto, auto, auto, auto, 24px 24px;
-    background-attachment: fixed;
+    background-color: #f7eded !important;
+    background-image: 
+        radial-gradient(circle at 12% 18%, rgba(135, 75, 92, 0.38) 0%, transparent 48%),
+        radial-gradient(circle at 88% 82%, rgba(110, 55, 70, 0.32) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.45) 0%, transparent 70%) !important;
+    background-attachment: fixed !important;
 }
 
 /* Decorative corner illustrations (coffee cup, croissant, utensils) —
@@ -198,7 +205,7 @@ body {
 }
 .cc-bg-art svg {
     position: absolute;
-    opacity: 0.10;
+    opacity: 0.20;
 }
 .cc-bg-art .art-cup { top: -40px; right: -40px; width: 260px; height: 260px; }
 .cc-bg-art .art-croissant { bottom: -30px; left: -50px; width: 220px; height: 220px; transform: rotate(-12deg); }
@@ -286,7 +293,7 @@ a, button, .card-ticket, .card-plain, .btn-mustard, .btn-ink, .btn-outline, .nav
     display: block;
     border-radius: 14px;
     overflow: hidden;
-    height: 160px;
+    height: 220px;
     text-decoration: none;
     background-color: var(--cc-ink);
     box-shadow: 0 6px 16px rgba(31, 59, 44, 0.14);

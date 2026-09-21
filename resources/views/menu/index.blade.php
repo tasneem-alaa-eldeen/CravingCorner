@@ -66,7 +66,7 @@
                     </form>
 
                     @if ($item->image)
-                        <img src="{{ asset('storage/' . $item->image) }}" style="width:100%; height:120px; object-fit:contain; border-radius:8px; margin-bottom:0.6rem; background: var(--cc-paper); border:1px solid var(--cc-line); padding:0.4rem;" alt="{{ $item->name }}">
+                        <img src="{{ asset('storage/' . $item->image) }}"  alt="{{ $item->name }}">
                     @else
                         <div style="width:100%; height:120px; border-radius:8px; margin-bottom:0.6rem; background: var(--cc-paper); border:1px dashed var(--cc-line); display:flex; align-items:center; justify-content:center; font-size:2rem;">🍽️</div>
                     @endif
@@ -109,7 +109,7 @@
                     </form>
 
                     @if ($item->image)
-                        <img src="{{ asset('storage/' . $item->image) }}" style="width:100%; height:120px; object-fit:contain; border-radius:8px; margin-bottom:0.6rem; background: var(--cc-paper); border:1px solid var(--cc-line); padding:0.4rem;" alt="{{ $item->name }}">
+                        <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}">
                     @else
                         <div style="width:100%; height:120px; border-radius:8px; margin-bottom:0.6rem; background: var(--cc-paper); border:1px dashed var(--cc-line); display:flex; align-items:center; justify-content:center; font-size:2rem;">🥤</div>
                     @endif
