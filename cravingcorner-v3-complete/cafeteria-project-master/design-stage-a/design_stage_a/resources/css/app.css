@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================================================
+   CravingCorner brand system.
+   Plain CSS on purpose (not Tailwind color utilities) so it always
+   renders regardless of the build pipeline — mix these classes with
+   Tailwind's layout utilities (flex, grid, p-4, shadow-sm, etc.),
+   which already work fine.
+   =================================================================== */
+
+:root {
+    --cc-ink: #1F3B2C;
+    --cc-ink-light: #2C5240;
+    --cc-paper: #F7F4EC;
+    --cc-surface: #FFFFFF;
+    --cc-line: #D8CFBA;
+    --cc-mustard: #E2A63B;
+    --cc-mustard-dark: #C98A22;
+    --cc-clay: #C1443B;
+    --cc-sage: #6B9080;
+    --cc-text-muted: #7A7566;
+}
+
+body {
+    background-color: var(--cc-paper);
+    color: var(--cc-ink);
+}
+
+/* ---- Buttons ---- */
+.btn-mustard {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background-color: var(--cc-mustard);
+    color: var(--cc-ink);
+    font-weight: 700;
+    padding: 0.55rem 1.1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+}
+.btn-mustard:hover { background-color: var(--cc-mustard-dark); }
+
+.btn-ink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background-color: var(--cc-ink);
+    color: var(--cc-paper);
+    font-weight: 600;
+    padding: 0.55rem 1.1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+}
+.btn-ink:hover { background-color: var(--cc-ink-light); }
+
+.btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background-color: transparent;
+    color: var(--cc-ink);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--cc-line);
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+}
+.btn-outline:hover { border-color: var(--cc-ink); }
+
+.btn-text-clay {
+    background: none;
+    border: none;
+    color: var(--cc-clay);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+}
+
+/* ---- Cards ("order ticket" style) ---- */
+.card-ticket {
+    background-color: var(--cc-surface);
+    border: 2px dashed var(--cc-line);
+    border-radius: 12px;
+}
+
+.card-plain {
+    background-color: var(--cc-surface);
+    border: 1px solid var(--cc-line);
+    border-radius: 12px;
+}
+
+/* ---- Badges (status pills) ---- */
+.badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+.badge-mustard { background-color: rgba(226, 166, 59, 0.18); color: var(--cc-mustard-dark); }
+.badge-sage { background-color: rgba(107, 144, 128, 0.18); color: var(--cc-sage); }
+.badge-clay { background-color: rgba(193, 68, 59, 0.15); color: var(--cc-clay); }
+.badge-muted { background-color: rgba(122, 117, 102, 0.15); color: var(--cc-text-muted); }
+
+/* ---- Inputs ---- */
+.input-cc {
+    border: 1.5px solid var(--cc-line);
+    border-radius: 8px;
+    background-color: var(--cc-surface);
+    color: var(--cc-ink);
+    font-size: 0.875rem;
+    padding: 0.5rem 0.7rem;
+}
+.input-cc:focus {
+    outline: none;
+    border-color: var(--cc-mustard);
+    box-shadow: 0 0 0 3px rgba(226, 166, 59, 0.25);
+}
+
+/* ---- Nav ---- */
+.nav-cc {
+    background-color: var(--cc-ink);
+}
+.nav-link-cc {
+    color: rgba(247, 244, 236, 0.75);
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.4rem 0.1rem;
+    border-bottom: 2px solid transparent;
+    text-decoration: none;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+.nav-link-cc:hover { color: var(--cc-paper); }
+.nav-link-cc.active {
+    color: var(--cc-mustard);
+    border-bottom-color: var(--cc-mustard);
+}
+
+.brand-mark {
+    font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    color: var(--cc-mustard);
+    font-size: 1.35rem;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+}
+
+[x-cloak] { display: none !important; }

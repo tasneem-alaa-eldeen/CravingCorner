@@ -1,0 +1,385 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================================================
+   CravingCorner brand system.
+   Plain CSS on purpose (not Tailwind color utilities) so it always
+   renders regardless of the build pipeline — mix these classes with
+   Tailwind's layout utilities (flex, grid, p-4, shadow-sm, etc.),
+   which already work fine.
+   =================================================================== */
+
+:root {
+    --cc-ink: #1F3B2C;
+    --cc-ink-light: #2C5240;
+    --cc-paper: #F7F4EC;
+    --cc-surface: #FFFFFF;
+    --cc-line: #D8CFBA;
+    --cc-mustard: #E2A63B;
+    --cc-mustard-dark: #C98A22;
+    --cc-clay: #C1443B;
+    --cc-sage: #6B9080;
+    --cc-text-muted: #7A7566;
+}
+
+body {
+    background-color: var(--cc-paper);
+    color: var(--cc-ink);
+}
+
+/* ---- Buttons ---- */
+.btn-mustard {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background-color: var(--cc-mustard);
+    color: var(--cc-ink);
+    font-weight: 700;
+    padding: 0.55rem 1.1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+}
+.btn-mustard:hover { background-color: var(--cc-mustard-dark); }
+
+.btn-ink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background-color: var(--cc-ink);
+    color: var(--cc-paper);
+    font-weight: 600;
+    padding: 0.55rem 1.1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+}
+.btn-ink:hover { background-color: var(--cc-ink-light); }
+
+.btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background-color: transparent;
+    color: var(--cc-ink);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--cc-line);
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+}
+.btn-outline:hover { border-color: var(--cc-ink); }
+
+.btn-text-clay {
+    background: none;
+    border: none;
+    color: var(--cc-clay);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+}
+
+/* ---- Cards ("order ticket" style) ---- */
+.card-ticket {
+    background-color: var(--cc-surface);
+    border: 2px dashed var(--cc-line);
+    border-radius: 12px;
+}
+
+.card-plain {
+    background-color: var(--cc-surface);
+    border: 1px solid var(--cc-line);
+    border-radius: 12px;
+}
+
+/* ---- Badges (status pills) ---- */
+.badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+.badge-mustard { background-color: rgba(226, 166, 59, 0.18); color: var(--cc-mustard-dark); }
+.badge-sage { background-color: rgba(107, 144, 128, 0.18); color: var(--cc-sage); }
+.badge-clay { background-color: rgba(193, 68, 59, 0.15); color: var(--cc-clay); }
+.badge-muted { background-color: rgba(122, 117, 102, 0.15); color: var(--cc-text-muted); }
+
+/* ---- Inputs ---- */
+.input-cc {
+    border: 1.5px solid var(--cc-line);
+    border-radius: 8px;
+    background-color: var(--cc-surface);
+    color: var(--cc-ink);
+    font-size: 0.875rem;
+    padding: 0.5rem 0.7rem;
+}
+.input-cc:focus {
+    outline: none;
+    border-color: var(--cc-mustard);
+    box-shadow: 0 0 0 3px rgba(226, 166, 59, 0.25);
+}
+
+/* ---- Nav ---- */
+.nav-cc {
+    background-color: var(--cc-ink);
+}
+.nav-link-cc {
+    color: rgba(247, 244, 236, 0.75);
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.4rem 0.1rem;
+    border-bottom: 2px solid transparent;
+    text-decoration: none;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+.nav-link-cc:hover { color: var(--cc-paper); }
+.nav-link-cc.active {
+    color: var(--cc-mustard);
+    border-bottom-color: var(--cc-mustard);
+}
+
+.brand-mark {
+    font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    color: var(--cc-mustard);
+    font-size: 1.35rem;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+}
+
+[x-cloak] { display: none !important; }
+
+/* ===================================================================
+   Motion & background texture layer.
+   =================================================================== */
+
+/* Subtle low-opacity pattern behind every page — small dots, on-brand,
+   never distracting since it's under everything else. */
+/* Warm gradient wash + very light food/coffee-motif pattern, layered.
+   Fixed attachment so it doesn't repeat awkwardly on scroll.
+   Opacities are intentionally bold enough to actually read as color. */
+body {
+    background-color: var(--cc-paper);
+    background-image:
+        radial-gradient(circle at 8% 8%, rgba(226, 166, 59, 0.28) 0%, transparent 42%),
+        radial-gradient(circle at 95% 12%, rgba(107, 144, 128, 0.24) 0%, transparent 38%),
+        radial-gradient(circle at 15% 92%, rgba(193, 68, 59, 0.14) 0%, transparent 35%),
+        radial-gradient(circle at 80% 85%, rgba(31, 59, 44, 0.16) 0%, transparent 40%),
+        radial-gradient(circle, rgba(31, 59, 44, 0.09) 1.6px, transparent 1.6px);
+    background-size: auto, auto, auto, auto, 24px 24px;
+    background-attachment: fixed;
+}
+
+/* Decorative corner illustrations (coffee cup, croissant, utensils) —
+   fixed behind all content, never intercepts clicks. */
+.cc-bg-art {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+.cc-bg-art svg {
+    position: absolute;
+    opacity: 0.10;
+}
+.cc-bg-art .art-cup { top: -40px; right: -40px; width: 260px; height: 260px; }
+.cc-bg-art .art-croissant { bottom: -30px; left: -50px; width: 220px; height: 220px; transform: rotate(-12deg); }
+.cc-bg-art .art-utensils { top: 45%; right: -60px; width: 200px; height: 200px; transform: rotate(15deg); }
+.cc-bg-art .art-beans { bottom: 10%; left: 4%; width: 140px; height: 140px; }
+
+/* Smooth, consistent transitions for anything interactive */
+a, button, .card-ticket, .card-plain, .btn-mustard, .btn-ink, .btn-outline, .nav-link-cc, input, select, textarea {
+    transition: all 0.18s ease;
+}
+
+/* Cards lift gently on hover */
+.card-ticket:hover, .card-plain:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(31, 59, 44, 0.08);
+}
+
+/* Buttons get a soft press/lift */
+.btn-mustard:hover, .btn-ink:hover { transform: translateY(-1px); }
+.btn-mustard:active, .btn-ink:active, .btn-outline:active { transform: translateY(0); }
+
+/* Gentle fade-up entrance for page content */
+@keyframes cc-fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.cc-animate-in {
+    animation: cc-fade-up 0.35s ease both;
+}
+/* Stagger children automatically when a parent has this class */
+.cc-animate-stagger > * {
+    animation: cc-fade-up 0.35s ease both;
+}
+.cc-animate-stagger > *:nth-child(1) { animation-delay: 0.03s; }
+.cc-animate-stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.cc-animate-stagger > *:nth-child(3) { animation-delay: 0.09s; }
+.cc-animate-stagger > *:nth-child(4) { animation-delay: 0.12s; }
+.cc-animate-stagger > *:nth-child(5) { animation-delay: 0.15s; }
+.cc-animate-stagger > *:nth-child(6) { animation-delay: 0.18s; }
+
+/* Badges get a tiny pop when they first render */
+.badge { animation: cc-fade-up 0.25s ease both; }
+
+/* ===================================================================
+   Hero section (welcoming header with circular logo badge)
+   =================================================================== */
+.cc-hero {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 1.75rem 0;
+}
+.cc-hero-badge {
+    width: 4.2rem;
+    height: 4.2rem;
+    border-radius: 999px;
+    background: var(--cc-ink);
+    border: 3px solid var(--cc-mustard);
+    box-shadow: 0 10px 24px rgba(31, 59, 44, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+.cc-hero-badge:hover { transform: scale(1.06) rotate(-4deg); }
+.cc-hero-title {
+    font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 1.9rem;
+    color: var(--cc-ink);
+    line-height: 1.15;
+}
+.cc-hero-sub {
+    color: var(--cc-text-muted);
+    font-size: 0.95rem;
+    margin-top: 0.2rem;
+}
+
+/* ===================================================================
+   Full-bleed image cards (category tiles) with dark overlay + hover zoom
+   =================================================================== */
+.cc-cover-card {
+    position: relative;
+    display: block;
+    border-radius: 14px;
+    overflow: hidden;
+    height: 160px;
+    text-decoration: none;
+    background-color: var(--cc-ink);
+    box-shadow: 0 6px 16px rgba(31, 59, 44, 0.14);
+    transition: transform 0.3s cubic-bezier(.22,1,.36,1), box-shadow 0.3s ease;
+}
+.cc-cover-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 18px 34px rgba(31, 59, 44, 0.32);
+}
+.cc-cover-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+.cc-cover-card:hover img {
+    transform: scale(1.08);
+}
+.cc-cover-card .cc-cover-fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    opacity: 0.35;
+}
+.cc-cover-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(20, 33, 26, 0.88) 0%, rgba(20, 33, 26, 0.25) 55%, rgba(20, 33, 26, 0) 100%);
+}
+.cc-cover-content {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 0.85rem 1rem;
+    color: var(--cc-paper);
+}
+.cc-cover-content .cc-cover-title {
+    font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+.cc-cover-content .cc-cover-meta {
+    font-size: 0.75rem;
+    color: rgba(247, 244, 236, 0.85);
+    margin-top: 0.15rem;
+}
+
+/* ===================================================================
+   Collapsible sidebar drawer (hidden by default at every breakpoint)
+   =================================================================== */
+.cc-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 17rem;
+    z-index: 60;
+    background: var(--cc-ink);
+    transform: translateX(-100%);
+    transition: transform 0.32s cubic-bezier(.22,1,.36,1);
+    box-shadow: 12px 0 40px rgba(0,0,0,0.25);
+}
+.cc-sidebar.cc-sidebar-open {
+    transform: translateX(0);
+}
+.cc-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 33, 26, 0.45);
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+.cc-sidebar-backdrop.cc-sidebar-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.cc-topbar {
+    background: var(--cc-ink);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+}
+.cc-hamburger {
+    background: none;
+    border: none;
+    color: var(--cc-paper);
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+.cc-hamburger:hover { background: rgba(247,244,236,0.1); }
