@@ -390,3 +390,11 @@ a, button, .card-ticket, .card-plain, .btn-mustard, .btn-ink, .btn-outline, .nav
     transition: background-color 0.15s ease;
 }
 .cc-hamburger:hover { background: rgba(247,244,236,0.1); }
+
+.cc-bg-art svg {
+    opacity: 0.14;
+}
+.cc-bg-art .art-muffin { top: 8%; left: -50px; width: 180px; height: 180px; transform: rotate(-8deg); }
+.cc-bg-art .art-teapot { bottom: -20px; right: 6%; width: 200px; height: 200px; transform: rotate(6deg); }
+.cc-bg-art .art-sparkles { top: 55%; left: 2%; width: 130px; height: 130px; }
+.cc-bg-art .art-plate { top: 2%; right: 30%; width: 150px; height: 150px; }
