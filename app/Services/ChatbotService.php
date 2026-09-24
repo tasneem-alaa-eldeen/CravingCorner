@@ -45,7 +45,7 @@ class ChatbotService
         $schema = json_encode(self::ADMIN_TABLES, JSON_THROW_ON_ERROR);
 
         $decision = json_decode($this->ask(
-            system: 'You translate cafeteria admin questions into read-only SQL. Reply with ONLY a JSON object: {"needs_database": boolean, "sql": string}. SQL must be a single SELECT using only the given tables/columns, no comments, no semicolons.',
+            system: 'You translate cafeteria admin questions into read-only SQL. Reply with ONLY a JSON object: {"needs_database": boolean, "sql": string}. Set needs_database to true for ANY question asking about a count, quantity, stock level, price, total, list, or specific record — only set it false for pure greetings or small talk. SQL must use only the given tables/columns, no comments, no semicolons. Match item/category names case-insensitively, e.g. WHERE LOWER(name) LIKE LOWER(\'%orange juice%\'). You may use UNION ALL when a question needs to combine food_items and beverages (e.g. via order_items, which links to either through itemable_type/itemable_id — filter with itemable_type = \'App\\\\Models\\\\FoodItem\' or \'App\\\\Models\\\\Beverage\').',
             user: "Schema: {$schema}\nQuestion: {$message}",
             jsonMode: true,
         ), true);
@@ -61,7 +61,11 @@ class ChatbotService
 
         $this->validateSql($sql, self::ADMIN_TABLES);
 
-        return json_encode(DB::select($sql.' limit 100'), JSON_THROW_ON_ERROR);
+        // Only add a safety limit if the query doesn't already have one
+        // (the AI often writes its own, e.g. "... ORDER BY x DESC LIMIT 1").
+        $withLimit = preg_match('/\blimit\s+\d/i', $sql) ? $sql : $sql.' limit 100';
+
+        return json_encode(DB::select($withLimit), JSON_THROW_ON_ERROR);
     }
 
     // ---- CUSTOMER: no SQL access. AI only sees pre-computed context ---
@@ -106,7 +110,12 @@ class ChatbotService
             throw new RuntimeException('Only read-only SELECT queries are allowed.');
         }
 
-        if (preg_match('/\b(insert|update|delete|drop|alter|create|replace|union|into\s+outfile)\b/i', $normalized)) {
+        // Note: UNION is intentionally allowed — it's needed for
+        // questions that combine food_items and beverages (e.g. "most
+        // popular category"), and every table it references is still
+        // checked against the whitelist below. Only actual write
+        // operations are blocked here.
+        if (preg_match('/\b(insert|update|delete|drop|alter|create|replace|into\s+outfile|grant|revoke)\b/i', $normalized)) {
             throw new RuntimeException('Only read-only SELECT queries are allowed.');
         }
 
