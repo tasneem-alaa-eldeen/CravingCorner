@@ -3,85 +3,115 @@
 @tailwind utilities;
 
 /* ===================================================================
-   CravingCorner brand system.
-   Plain CSS on purpose (not Tailwind color utilities) so it always
-   renders regardless of the build pipeline — mix these classes with
-   Tailwind's layout utilities (flex, grid, p-4, shadow-sm, etc.),
-   which already work fine.
+   CravingCorner — "Golden Hour" light premium theme (v6)
+   Crisp warm-white page, soft gray sections, white floating cards,
+   amber / terracotta / gold accents. Inspired by Uber Eats: a dark
+   contrast bar for nav/topbar/sidebar sitting on top of an airy light
+   content area.
+
+   Every view in this app is written against these CSS variables and
+   these component classes (.card-plain, .card-ticket, .btn-mustard,
+   .btn-ink, .btn-outline, .badge-*, .input-cc, .nav-cc, .cc-*) instead
+   of raw Tailwind color utilities — so this one file re-themes the
+   ENTIRE site (dashboard, statistics, menu, cart, orders,
+   recommendations, every admin screen, auth pages) with nothing else
+   needing to change. Tailwind layout utilities (flex, grid, gap-4...)
+   keep working exactly as before.
    =================================================================== */
 
 :root {
-    --cc-ink: #7a4b58;
-    --cc-ink-light: #996573;
-    --cc-paper: #faf3f4;
-    --cc-surface: #FFFFFF;
-    --cc-line: #e8d7dc;
-    --cc-mustard: #e5a4b0;
-    --cc-mustard-dark: #b87684;
-    --cc-clay: #a86b79;
-    --cc-sage: #9e7c84;
-    --cc-text-muted: #8c6d73;
+    /* Text */
+    --cc-ink: #2B1B10;             /* primary text — rich espresso     */
+    --cc-ink-light: #4A2E1B;       /* secondary dark / hover           */
+    --cc-text-muted: #8C7A68;      /* muted meta text                  */
+
+    /* Surfaces */
+    --cc-paper: #F7F3EC;           /* page background — soft warm white*/
+    --cc-surface: #FFFFFF;         /* floating card surface — pure white*/
+    --cc-line: #ECE3D6;            /* hairline borders / dividers      */
+
+    /* Accents */
+    --cc-mustard: #E29A2E;         /* primary amber / gold             */
+    --cc-mustard-dark: #B3701A;    /* deeper amber — hover / dark text */
+    --cc-clay: #C1543D;            /* terracotta — danger / accent     */
+    --cc-sage: #4C9A6B;            /* success green                    */
+
+    /* Card shadow tokens ("floating card" look) */
+    --cc-shadow-sm: 0 2px 8px rgba(43, 27, 16, 0.06);
+    --cc-shadow: 0 18px 40px -16px rgba(43, 27, 16, 0.18), 0 2px 8px rgba(43, 27, 16, 0.05);
+    --cc-shadow-lg: 0 30px 60px -20px rgba(43, 27, 16, 0.28);
 }
 
+/* ---- Base page background: soft warm white with faint amber glow ---- */
 body {
-    background-color: var(--cc-paper);
     color: var(--cc-ink);
+    background-color: var(--cc-paper);
+    background-image:
+        radial-gradient(900px 500px at 8% -10%, rgba(226, 154, 46, 0.10), transparent 60%),
+        radial-gradient(700px 460px at 100% 0%, rgba(193, 84, 61, 0.06), transparent 55%),
+        linear-gradient(180deg, #FBF8F3 0%, #F7F3EC 55%, #F3ECDF 100%);
+    background-attachment: fixed;
 }
 
 /* ---- Buttons ---- */
-.btn-mustard {
+.btn-mustard,
+.btn-ink,
+.btn-outline {
+    position: relative;
+    overflow: hidden;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
-    background-color: var(--cc-mustard);
-    color: var(--cc-ink);
     font-weight: 700;
-    padding: 0.55rem 1.1rem;
-    border-radius: 8px;
-    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 14px;
     cursor: pointer;
     font-size: 0.875rem;
     text-decoration: none;
-    transition: background-color 0.15s ease;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
 }
-.btn-mustard:hover { background-color: var(--cc-mustard-dark); }
+
+.btn-mustard {
+    color: #2B1B10;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: linear-gradient(135deg, #F4C878 0%, #E29A2E 55%, #B3701A 100%);
+    box-shadow: 0 10px 22px -10px rgba(226, 154, 46, 0.55);
+}
+.btn-mustard:hover { filter: brightness(1.06) saturate(1.05); transform: translateY(-1px); box-shadow: 0 16px 28px -12px rgba(226, 154, 46, 0.6); }
 
 .btn-ink {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    background-color: var(--cc-ink);
-    color: var(--cc-paper);
-    font-weight: 600;
-    padding: 0.55rem 1.1rem;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-size: 0.875rem;
-    text-decoration: none;
-    transition: background-color 0.15s ease;
+    color: #FBF3E4;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(135deg, #4A2E1B 0%, #2B1B10 100%);
+    box-shadow: 0 10px 22px -10px rgba(43, 27, 16, 0.5);
 }
-.btn-ink:hover { background-color: var(--cc-ink-light); }
+.btn-ink:hover { filter: brightness(1.15); transform: translateY(-1px); }
 
 .btn-outline {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    background-color: transparent;
     color: var(--cc-ink);
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
+    background: var(--cc-surface);
     border: 1.5px solid var(--cc-line);
-    cursor: pointer;
-    font-size: 0.875rem;
-    text-decoration: none;
-    transition: border-color 0.15s ease;
+    font-weight: 600;
+    box-shadow: var(--cc-shadow-sm);
 }
-.btn-outline:hover { border-color: var(--cc-ink); }
+.btn-outline:hover { border-color: var(--cc-mustard); color: var(--cc-mustard-dark); }
+
+.btn-mustard:active, .btn-ink:active, .btn-outline:active { transform: translateY(0); }
+
+.btn-mustard::after,
+.btn-ink::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0; left: -60%;
+    width: 40%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.55s ease;
+    pointer-events: none;
+}
+.btn-mustard:hover::after,
+.btn-ink:hover::after { left: 130%; }
 
 .btn-text-clay {
     background: none;
@@ -93,77 +123,99 @@ body {
     padding: 0;
     text-decoration: none;
 }
+.btn-text-clay:hover { color: #A5392A; }
 
-/* ---- Cards ("order ticket" style) ---- */
-.card-ticket {
-    background-color: var(--cc-surface);
-    border: 4px dashed var(--cc-line);
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-}
-.card-ticket img {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 8px;
-    display: block;
-    margin-bottom: 12px;
-}
-
+/* ---- Cards: crisp white "floating card" look ---- */
+.card-ticket,
 .card-plain {
-    background-color: var(--cc-surface);
+    position: relative;
+    background: var(--cc-surface);
     border: 1px solid var(--cc-line);
-    border-radius: 12px;
+    border-radius: 20px;
+    box-shadow: var(--cc-shadow);
+}
+.card-ticket { overflow: hidden; }
+.card-ticket::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--cc-mustard), var(--cc-clay));
+    opacity: 0.9;
+    z-index: 3;
+    pointer-events: none;
 }
 
-/* ---- Badges (status pills) ---- */
+/* ---- Badges ---- */
 .badge {
     display: inline-block;
-    padding: 0.15rem 0.6rem;
+    padding: 0.18rem 0.7rem;
     border-radius: 999px;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: capitalize;
+    animation: cc-fade-up 0.25s ease both;
 }
-.badge-mustard { background-color: rgba(226, 166, 59, 0.18); color: var(--cc-mustard-dark); }
-.badge-sage { background-color: rgba(107, 144, 128, 0.18); color: var(--cc-sage); }
-.badge-clay { background-color: rgba(193, 68, 59, 0.15); color: var(--cc-clay); }
-.badge-muted { background-color: rgba(122, 117, 102, 0.15); color: var(--cc-text-muted); }
+.badge-mustard { background: rgba(226, 154, 46, 0.14); color: var(--cc-mustard-dark); }
+.badge-sage    { background: rgba(76, 154, 107, 0.13); color: #2F7A50; }
+.badge-clay    { background: rgba(193, 84, 61, 0.13); color: #A5392A; }
+.badge-muted   { background: rgba(140, 122, 104, 0.13); color: var(--cc-text-muted); }
+
+/* Stray Tailwind utility colors used in a few auth/profile views are
+   remapped here so those pages stay on-theme without editing them. */
+.text-green-600, .text-green-700, .text-green-500 { color: var(--cc-sage) !important; }
+.text-gray-900, .text-gray-800 { color: var(--cc-ink) !important; }
+.text-gray-700, .text-gray-600, .text-gray-500 { color: var(--cc-text-muted) !important; }
+.border-gray-300 { border-color: var(--cc-line) !important; }
+.bg-gray-50, .bg-gray-100 { background-color: #FAF6EF !important; }
+.bg-gray-500 { background-color: rgba(43, 27, 16, 0.45) !important; }
 
 /* ---- Inputs ---- */
 .input-cc {
     border: 1.5px solid var(--cc-line);
-    border-radius: 8px;
+    border-radius: 12px;
     background-color: var(--cc-surface);
     color: var(--cc-ink);
     font-size: 0.875rem;
-    padding: 0.5rem 0.7rem;
+    padding: 0.55rem 0.8rem;
 }
+.input-cc::placeholder { color: var(--cc-text-muted); opacity: 0.85; }
 .input-cc:focus {
     outline: none;
     border-color: var(--cc-mustard);
-    box-shadow: 0 0 0 3px rgba(226, 166, 59, 0.25);
+    box-shadow: 0 0 0 3px rgba(226, 154, 46, 0.22);
 }
 
-/* ---- Nav ---- */
+/* Laravel's default form inputs (x-text-input etc.) — bring them into
+   the theme without touching every auth/profile view. */
+input[type="text"], input[type="email"], input[type="password"],
+input[type="number"], input[type="date"], textarea, select {
+    background-color: var(--cc-surface);
+    border-color: var(--cc-line);
+    color: var(--cc-ink);
+    border-radius: 12px;
+}
+input:focus, textarea:focus, select:focus {
+    border-color: var(--cc-mustard) !important;
+    box-shadow: 0 0 0 3px rgba(226, 154, 46, 0.22) !important;
+}
+
+/* ---- Nav / topbar / brand: a dark contrast bar on the light page,
+   Uber-Eats style ---- */
 .nav-cc {
-    background-color: var(--cc-ink);
+    background: linear-gradient(100deg, #1F140B, #2E1D10 60%, #241708);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .nav-link-cc {
-    color: rgba(249, 244, 247, 0.75);
+    color: rgba(251, 243, 228, 0.72);
     font-weight: 600;
     font-size: 0.875rem;
     padding: 0.4rem 0.1rem;
     border-bottom: 2px solid transparent;
     text-decoration: none;
-    transition: color 0.15s ease, border-color 0.15s ease;
 }
-.nav-link-cc:hover { color: var(--cc-paper); }
-.nav-link-cc.active {
-    color: var(--cc-mustard);
-    border-bottom-color: var(--cc-mustard);
-}
+.nav-link-cc:hover { color: #FBF3E4; }
+.nav-link-cc.active { color: var(--cc-mustard); border-bottom-color: var(--cc-mustard); }
 
 .brand-mark {
     font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
@@ -177,224 +229,339 @@ body {
 [x-cloak] { display: none !important; }
 
 /* ===================================================================
-   Motion & background texture layer.
+   Background illustrations — soft ink linework, barely-there on the
+   light page.
    =================================================================== */
-
-/* Subtle low-opacity pattern behind every page — small dots, on-brand,
-   never distracting since it's under everything else. */
-/* Warm gradient wash + very light food/coffee-motif pattern, layered.
-   Fixed attachment so it doesn't repeat awkwardly on scroll.
-   Opacities are intentionally bold enough to actually read as color. */
-body {
-    background-color: #f7eded !important;
-    background-image: 
-        radial-gradient(circle at 12% 18%, rgba(135, 75, 92, 0.38) 0%, transparent 48%),
-        radial-gradient(circle at 88% 82%, rgba(110, 55, 70, 0.32) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.45) 0%, transparent 70%) !important;
-    background-attachment: fixed !important;
-}
-
-/* Decorative corner illustrations (coffee cup, croissant, utensils) —
-   fixed behind all content, never intercepts clicks. */
-.cc-bg-art {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    overflow: hidden;
-    pointer-events: none;
-}
+.cc-bg-art { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .cc-bg-art svg {
     position: absolute;
-    opacity: 0.20;
+    opacity: 0.07;
+    animation: cc-float 10s ease-in-out infinite;
 }
-.cc-bg-art .art-cup { top: -40px; right: -40px; width: 260px; height: 260px; }
-.cc-bg-art .art-croissant { bottom: -30px; left: -50px; width: 220px; height: 220px; transform: rotate(-12deg); }
-.cc-bg-art .art-utensils { top: 45%; right: -60px; width: 200px; height: 200px; transform: rotate(15deg); }
-.cc-bg-art .art-beans { bottom: 10%; left: 4%; width: 140px; height: 140px; }
+.cc-bg-art .art-cup      { top: -40px; right: -40px; width: 260px; height: 260px; }
+.cc-bg-art .art-croissant{ bottom: -30px; left: -50px; width: 220px; height: 220px; transform: rotate(-12deg); animation-delay: -3s; }
+.cc-bg-art .art-utensils { top: 45%; right: -60px; width: 200px; height: 200px; transform: rotate(15deg); animation-delay: -6s; }
+.cc-bg-art .art-beans    { bottom: 10%; left: 4%; width: 140px; height: 140px; animation-delay: -1.5s; }
 
-/* Smooth, consistent transitions for anything interactive */
-a, button, .card-ticket, .card-plain, .btn-mustard, .btn-ink, .btn-outline, .nav-link-cc, input, select, textarea {
-    transition: all 0.18s ease;
+@keyframes cc-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
 }
-
-/* Cards lift gently on hover */
-.card-ticket:hover, .card-plain:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(31, 59, 44, 0.08);
+@media (prefers-reduced-motion: reduce) {
+    .cc-bg-art svg, .cc-animate-in, .cc-animate-stagger > *, .badge { animation: none !important; }
 }
-
-/* Buttons get a soft press/lift */
-.btn-mustard:hover, .btn-ink:hover { transform: translateY(-1px); }
-.btn-mustard:active, .btn-ink:active, .btn-outline:active { transform: translateY(0); }
-
-/* Gentle fade-up entrance for page content */
-@keyframes cc-fade-up {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.cc-animate-in {
-    animation: cc-fade-up 0.35s ease both;
-}
-/* Stagger children automatically when a parent has this class */
-.cc-animate-stagger > * {
-    animation: cc-fade-up 0.35s ease both;
-}
-.cc-animate-stagger > *:nth-child(1) { animation-delay: 0.03s; }
-.cc-animate-stagger > *:nth-child(2) { animation-delay: 0.06s; }
-.cc-animate-stagger > *:nth-child(3) { animation-delay: 0.09s; }
-.cc-animate-stagger > *:nth-child(4) { animation-delay: 0.12s; }
-.cc-animate-stagger > *:nth-child(5) { animation-delay: 0.15s; }
-.cc-animate-stagger > *:nth-child(6) { animation-delay: 0.18s; }
-
-/* Badges get a tiny pop when they first render */
-.badge { animation: cc-fade-up 0.25s ease both; }
 
 /* ===================================================================
-   Hero section (welcoming header with circular logo badge)
+   Motion
    =================================================================== */
-.cc-hero {
-    display: flex;
-    align-items: center;
-    gap: 1.1rem;
-    padding: 1.75rem 0;
+a, button, input, select, textarea { transition: all 0.18s ease; }
+.card-ticket:hover, .card-plain:hover { transform: translateY(-3px); box-shadow: var(--cc-shadow-lg); }
+form.card-plain:hover, .card-plain[style*="overflow:hidden"]:hover, header.card-plain:hover { transform: none; }
+
+@keyframes cc-fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
+.cc-animate-in { animation: cc-fade-up 0.4s ease both; }
+.cc-animate-stagger > * { animation: cc-fade-up 0.45s ease both; }
+.cc-animate-stagger > *:nth-child(1) { animation-delay: 0.03s; }
+.cc-animate-stagger > *:nth-child(2) { animation-delay: 0.07s; }
+.cc-animate-stagger > *:nth-child(3) { animation-delay: 0.11s; }
+.cc-animate-stagger > *:nth-child(4) { animation-delay: 0.15s; }
+.cc-animate-stagger > *:nth-child(5) { animation-delay: 0.19s; }
+.cc-animate-stagger > *:nth-child(6) { animation-delay: 0.23s; }
+.cc-animate-stagger > *:nth-child(n+7) { animation-delay: 0.27s; }
+
+/* ===================================================================
+   Hero — big banner section (dashboard, menu). Dark espresso panel
+   with a gold glow, floating above the light page.
+   =================================================================== */
+.cc-hero-banner {
+    position: relative;
+    overflow: hidden;
+    border-radius: 26px;
+    padding: 2.25rem 2rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(120deg, #2B1B10 0%, #3B2412 55%, #2B1B10 100%);
+    box-shadow: var(--cc-shadow-lg);
+}
+.cc-hero-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(420px 260px at 90% -10%, rgba(226, 154, 46, 0.35), transparent 60%),
+        radial-gradient(380px 260px at 0% 120%, rgba(193, 84, 61, 0.20), transparent 60%);
+    pointer-events: none;
+}
+.cc-hero-banner > * { position: relative; z-index: 1; }
+
+.cc-hero { display: flex; align-items: center; gap: 1.1rem; }
 .cc-hero-badge {
-    width: 4.2rem;
-    height: 4.2rem;
+    width: 4.4rem; height: 4.4rem;
     border-radius: 999px;
-    background: var(--cc-ink);
-    border: 3px solid var(--cc-mustard);
-    box-shadow: 0 10px 24px rgba(31, 59, 44, 0.28);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: linear-gradient(135deg, #F4C878, #B3701A);
+    border: 3px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.5);
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     transition: transform 0.3s ease;
 }
-.cc-hero-badge:hover { transform: scale(1.06) rotate(-4deg); }
+.cc-hero-badge:hover { transform: scale(1.07) rotate(-5deg); }
 .cc-hero-title {
     font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
     font-weight: 700;
-    font-size: 1.9rem;
-    color: var(--cc-ink);
+    font-size: 1.95rem;
     line-height: 1.15;
+    color: #FBF3E4;
 }
-.cc-hero-sub {
-    color: var(--cc-text-muted);
-    font-size: 0.95rem;
-    margin-top: 0.2rem;
-}
+.cc-hero-sub { color: rgba(251, 243, 228, 0.72); font-size: 0.95rem; margin-top: 0.2rem; }
 
 /* ===================================================================
-   Full-bleed image cards (category tiles) with dark overlay + hover zoom
+   Image system — one consistent frame for every photo.
+   =================================================================== */
+.cc-img-wrap { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(145deg, #F4E3C4, #E6C48C); transition: transform 0.6s cubic-bezier(.22,1,.36,1); }
+.cc-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cc-img-cover { object-fit: cover; }
+.cc-img-contain { object-fit: contain; padding: 6%; box-sizing: border-box; }
+.cc-img-fallback { display: flex; align-items: center; justify-content: center; font-size: clamp(2.6rem, 7vw, 4rem); }
+
+/* ===================================================================
+   Category cards — square, full-bleed photo, dark scrim + light text
    =================================================================== */
 .cc-cover-card {
     position: relative;
     display: block;
-    border-radius: 14px;
+    aspect-ratio: 1 / 1;
+    border-radius: 22px;
     overflow: hidden;
-    height: 220px;
     text-decoration: none;
-    background-color: var(--cc-ink);
-    box-shadow: 0 6px 16px rgba(31, 59, 44, 0.14);
-    transition: transform 0.3s cubic-bezier(.22,1,.36,1), box-shadow 0.3s ease;
+    background: #2B1B10;
+    box-shadow: var(--cc-shadow);
+    transition: transform 0.35s cubic-bezier(.22,1,.36,1), box-shadow 0.35s ease;
 }
-.cc-cover-card:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 18px 34px rgba(31, 59, 44, 0.32);
-}
-.cc-cover-card img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-}
-.cc-cover-card:hover img {
-    transform: scale(1.08);
-}
-.cc-cover-card .cc-cover-fallback {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    opacity: 0.35;
-}
-.cc-cover-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(20, 33, 26, 0.88) 0%, rgba(20, 33, 26, 0.25) 55%, rgba(20, 33, 26, 0) 100%);
-}
-.cc-cover-content {
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    padding: 0.85rem 1rem;
-    color: var(--cc-paper);
-}
-.cc-cover-content .cc-cover-title {
-    font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
-    font-weight: 700;
-    font-size: 1.05rem;
-}
-.cc-cover-content .cc-cover-meta {
-    font-size: 0.75rem;
-    color: rgba(247, 244, 236, 0.85);
-    margin-top: 0.15rem;
-}
+.cc-cover-card:hover { transform: translateY(-6px); box-shadow: var(--cc-shadow-lg); }
+.cc-cover-card:hover img { transform: scale(1.07); }
+.cc-cover-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.cc-cover-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; background: linear-gradient(145deg, #F4E3C4, #E6C48C); }
+.cc-cover-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(20,12,6,0.92) 0%, rgba(20,12,6,0.28) 45%, rgba(20,12,6,0) 75%); }
+.cc-cover-content { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.95rem 1rem 1rem; }
+.cc-cover-title { font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-size: 1.15rem; color: #FBF3E4; }
+.cc-cover-meta { font-size: 0.75rem; color: rgba(251, 243, 228, 0.78); margin-top: 0.2rem; }
 
 /* ===================================================================
-   Collapsible sidebar drawer (hidden by default at every breakpoint)
+   Menu / food listing cards — Uber-Eats style: photo on top, white
+   card body with name / meta / price / add-to-cart below.
+   =================================================================== */
+.cc-food-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--cc-surface);
+    border: 1px solid var(--cc-line);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--cc-shadow);
+    transition: transform 0.3s cubic-bezier(.22,1,.36,1), box-shadow 0.3s ease;
+}
+.cc-food-card:hover { transform: translateY(-4px); box-shadow: var(--cc-shadow-lg); }
+.cc-food-card:hover .cc-food-img { transform: scale(1.06); }
+.cc-food-media { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: linear-gradient(145deg, #F4E3C4, #E6C48C); }
+.cc-food-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.cc-food-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2.6rem; }
+.cc-food-heart { position: absolute; top: 0.6rem; right: 0.6rem; z-index: 2; }
+.cc-food-heart button {
+    width: 2.1rem; height: 2.1rem; border-radius: 999px; border: none; cursor: pointer;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 10px rgba(43, 27, 16, 0.2);
+    font-size: 1rem; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+}
+.cc-food-heart button:hover { transform: scale(1.12); }
+.cc-food-body { padding: 0.9rem 1rem 1rem; display: flex; flex-direction: column; gap: 0.15rem; flex: 1; }
+.cc-food-name { font-weight: 700; color: var(--cc-ink); text-decoration: none; font-size: 0.98rem; }
+.cc-food-meta { font-size: 0.75rem; color: var(--cc-text-muted); }
+.cc-food-rate { font-size: 0.75rem; color: var(--cc-mustard-dark); }
+.cc-food-row { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 0.6rem; }
+.cc-food-price { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 700; color: var(--cc-ink); }
+.cc-food-add { display: flex; gap: 0.4rem; margin-top: 0.6rem; }
+.cc-food-add input[type=number] { width: 3.2rem; padding: 0.35rem 0.4rem; font-size: 0.8rem; border-radius: 10px; text-align: center; }
+.cc-food-add .btn-mustard { flex: 1; padding: 0.4rem 0.6rem; font-size: 0.8rem; border-radius: 10px; }
+
+/* ===================================================================
+   Sidebar drawer / topbar — same dark contrast bar as the nav
    =================================================================== */
 .cc-sidebar {
-    position: fixed;
-    inset: 0 auto 0 0;
-    width: 17rem;
-    z-index: 60;
-    background: var(--cc-ink);
+    position: fixed; inset: 0 auto 0 0; width: 17rem; z-index: 60;
+    background: linear-gradient(180deg, #2E1D10 0%, #22150B 60%, #1A1108 100%);
     transform: translateX(-100%);
     transition: transform 0.32s cubic-bezier(.22,1,.36,1);
-    box-shadow: 12px 0 40px rgba(0,0,0,0.25);
+    box-shadow: 20px 0 50px rgba(0,0,0,0.35);
 }
-.cc-sidebar.cc-sidebar-open {
-    transform: translateX(0);
-}
+.cc-sidebar.cc-sidebar-open { transform: translateX(0); }
 .cc-sidebar-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(20, 33, 26, 0.45);
-    z-index: 50;
-    opacity: 0;
-    pointer-events: none;
+    position: fixed; inset: 0;
+    background: rgba(20, 12, 6, 0.45);
+    z-index: 50; opacity: 0; pointer-events: none;
     transition: opacity 0.25s ease;
 }
-.cc-sidebar-backdrop.cc-sidebar-open {
-    opacity: 1;
-    pointer-events: auto;
-}
+.cc-sidebar-backdrop.cc-sidebar-open { opacity: 1; pointer-events: auto; }
 .cc-topbar {
-    background: var(--cc-ink);
-    position: sticky;
-    top: 0;
-    z-index: 40;
+    background: linear-gradient(100deg, #1F140B, #2E1D10);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky; top: 0; z-index: 40;
+    box-shadow: 0 4px 16px rgba(43, 27, 16, 0.12);
 }
-.cc-hamburger {
-    background: none;
-    border: none;
-    color: var(--cc-paper);
-    cursor: pointer;
-    padding: 0.4rem;
-    border-radius: 8px;
-    transition: background-color 0.15s ease;
-}
-.cc-hamburger:hover { background: rgba(247,244,236,0.1); }
+.cc-hamburger { background: none; border: none; color: #FBF3E4; cursor: pointer; padding: 0.4rem; border-radius: 10px; }
+.cc-hamburger:hover { background: rgba(255, 255, 255, 0.1); }
 
-.cc-bg-art svg {
-    opacity: 0.14;
+/* ===================================================================
+   Editorial hero (v2) — big, asymmetric, with embedded stat pills and
+   actions. Replaces the old "small badge + one-liner" banner pattern.
+   =================================================================== */
+.cc-hero-xl {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    padding: 2.75rem 2.5rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #2B1B10 0%, #47301A 50%, #2B1B10 100%);
+    box-shadow: var(--cc-shadow-lg);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
 }
-.cc-bg-art .art-muffin { top: 8%; left: -50px; width: 180px; height: 180px; transform: rotate(-8deg); }
-.cc-bg-art .art-teapot { bottom: -20px; right: 6%; width: 200px; height: 200px; transform: rotate(6deg); }
-.cc-bg-art .art-sparkles { top: 55%; left: 2%; width: 130px; height: 130px; }
-.cc-bg-art .art-plate { top: 2%; right: 30%; width: 150px; height: 150px; }
+.cc-hero-xl::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(560px 340px at 96% -14%, rgba(226, 154, 46, 0.40), transparent 60%),
+        radial-gradient(420px 300px at -6% 118%, rgba(193, 84, 61, 0.24), transparent 60%);
+    pointer-events: none;
+}
+.cc-hero-xl::after {
+    content: "☕";
+    position: absolute;
+    right: -1.2rem;
+    bottom: -2.4rem;
+    font-size: 11rem;
+    opacity: 0.06;
+    transform: rotate(-8deg);
+    pointer-events: none;
+}
+.cc-hero-xl > * { position: relative; z-index: 1; }
+.cc-hero-xl-eyebrow {
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--cc-mustard);
+    margin-bottom: 0.6rem;
+}
+.cc-hero-xl-title {
+    font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+    line-height: 1.12;
+    color: #FBF3E4;
+    max-width: 34rem;
+}
+.cc-hero-xl-sub { color: rgba(251, 243, 228, 0.72); margin-top: 0.65rem; max-width: 30rem; font-size: 0.95rem; }
+.cc-hero-xl-actions { display: flex; gap: 0.75rem; margin-top: 1.6rem; flex-wrap: wrap; }
+
+.cc-hero-xl-stats { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.cc-stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 0.7rem 1.1rem;
+    border-radius: 16px;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    min-width: 9rem;
+}
+.cc-stat-pill .cc-stat-num { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 700; font-size: 1.3rem; color: #FBF3E4; line-height: 1; }
+.cc-stat-pill .cc-stat-lbl { font-size: 0.66rem; color: rgba(251, 243, 228, 0.62); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+
+/* ---- Icon badges (used on stat cards / list rows) ---- */
+.cc-icon-badge {
+    width: 2.7rem; height: 2.7rem;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+.cc-icon-badge-mustard { background: rgba(226, 154, 46, 0.14); }
+.cc-icon-badge-clay    { background: rgba(193, 84, 61, 0.14); }
+.cc-icon-badge-sage    { background: rgba(76, 154, 107, 0.14); }
+.cc-icon-badge-ink     { background: rgba(43, 27, 16, 0.08); }
+
+/* ---- Large feature card (e.g. "Recommended for you") ---- */
+.cc-feature-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    padding: 1.9rem 2rem;
+    background: linear-gradient(135deg, #2B1B10, #4A2E1B);
+    color: #FBF3E4;
+    box-shadow: var(--cc-shadow-lg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 13rem;
+}
+.cc-feature-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(420px 280px at 100% 0%, rgba(226, 154, 46, 0.35), transparent 60%);
+    pointer-events: none;
+}
+.cc-feature-card::after {
+    content: "✨";
+    position: absolute;
+    right: -0.5rem;
+    bottom: -1.4rem;
+    font-size: 7rem;
+    opacity: 0.09;
+    pointer-events: none;
+}
+.cc-feature-card > * { position: relative; z-index: 1; }
+.cc-feature-eyebrow { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.66rem; font-weight: 700; color: var(--cc-mustard); margin-bottom: 0.5rem; }
+.cc-feature-title { font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-size: 1.5rem; }
+.cc-feature-sub { color: rgba(251, 243, 228, 0.72); margin-top: 0.4rem; max-width: 22rem; font-size: 0.9rem; }
+.cc-feature-card .btn-mustard { margin-top: 1.3rem; align-self: flex-start; }
+
+/* ---- Compact stat tile (small side-column cards) ---- */
+.cc-stat-tile {
+    display: flex; align-items: center; gap: 0.9rem;
+    padding: 1.1rem 1.25rem;
+    text-decoration: none;
+}
+.cc-stat-tile-num { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 700; font-size: 1.6rem; color: var(--cc-ink); line-height: 1; }
+.cc-stat-tile-lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--cc-text-muted); margin-top: 0.15rem; }
+
+/* ---- Section headers ---- */
+.cc-section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1rem; gap: 1rem; }
+.cc-section-head h3 { font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-size: 1.2rem; color: var(--cc-ink); margin: 0; }
+.cc-section-head a.cc-see-all { font-size: 0.8rem; font-weight: 600; color: var(--cc-mustard-dark); text-decoration: none; white-space: nowrap; }
+.cc-section-head a.cc-see-all:hover { text-decoration: underline; }
+
+/* ---- Chart card header (icon + label, replaces plain <p>) ---- */
+.cc-chart-head { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1.1rem; }
+.cc-chart-head h4 { font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-size: 0.98rem; color: var(--cc-ink); margin: 0; }
+.cc-chart-head p { font-size: 0.72rem; color: var(--cc-text-muted); margin: 0; }
+
+/* ---- Timeline-style list rows (recent orders etc.) ---- */
+.cc-timeline-row { display: flex; align-items: center; gap: 0.9rem; padding: 0.9rem 1.25rem; border-bottom: 1px solid var(--cc-line); text-decoration: none; color: var(--cc-ink); }
+.cc-timeline-row:last-child { border-bottom: none; }
+.cc-timeline-row:hover { background: rgba(226, 154, 46, 0.05); }
+.cc-timeline-main { flex: 1; min-width: 0; }
+.cc-timeline-title { font-size: 0.9rem; font-weight: 600; }
+.cc-timeline-meta { font-size: 0.75rem; color: var(--cc-text-muted); margin-top: 0.1rem; }

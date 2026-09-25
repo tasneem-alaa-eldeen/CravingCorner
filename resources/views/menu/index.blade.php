@@ -3,7 +3,14 @@
         <h2 class="font-display" style="font-size:1.4rem; font-weight:700; color: var(--cc-ink);">Menu</h2>
     </x-slot>
 
-    <div class="py-8 max-w-5xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8 max-w-6xl mx-auto sm:px-6 lg:px-8">
+
+        <!-- Hero banner -->
+        <div class="cc-hero-banner" style="padding:1.9rem 2rem;">
+            <p class="cc-hero-title" style="font-size:1.6rem;">What are you craving today? 🍽️</p>
+            <p class="cc-hero-sub">Browse the full menu, or narrow it down with the filters below.</p>
+        </div>
+
         @if (session('status'))
             <div class="badge badge-sage" style="display:block; padding:0.6rem 1rem; margin-bottom:1rem;">{{ session('status') }}</div>
         @endif
@@ -14,9 +21,10 @@
             </div>
         @endif
 
-        <form method="GET" class="card-plain" style="padding:1rem; margin-bottom:1.5rem;">
+        <!-- Filters -->
+        <form method="GET" class="card-plain" style="padding:1.25rem; margin-bottom:2rem;">
             <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Search..." class="input-cc">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Search the menu..." class="input-cc" style="flex:1; min-width:200px;">
                 <select name="category_id" class="input-cc">
                     <option value="">All categories</option>
                     @foreach ($categories as $cat)
@@ -47,91 +55,99 @@
                     <label style="display:block; font-size:0.7rem; color: var(--cc-text-muted); margin-bottom:0.2rem;">Max calories</label>
                     <input type="number" name="max_calories" value="{{ $maxCalories }}" style="width:90px;" class="input-cc">
                 </div>
-                <button type="submit" class="btn-ink">Filter</button>
-                <a href="{{ route('menu.index') }}" style="font-size:0.8125rem; color: var(--cc-text-muted); padding-bottom:0.6rem; text-decoration:none;">Reset</a>
+                <button type="submit" class="btn-mustard">Filter</button>
+                <a href="{{ route('menu.index') }}" class="btn-outline">Reset</a>
             </div>
         </form>
 
-        <h3 class="font-display" style="font-weight:700; margin-bottom:0.75rem; color: var(--cc-ink);">Food</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+        <h3 class="font-display" style="font-weight:700; margin-bottom:0.9rem; color: var(--cc-ink); font-size:1.15rem;">🍽️ Food</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mb-10 cc-animate-stagger">
             @forelse ($foodItems as $item)
-                <div class="card-ticket" style="padding:1rem; position:relative;">
-                    <form action="{{ route('favorites.toggle') }}" method="POST" style="position:absolute; top:10px; right:10px;">
-                        @csrf
-                        <input type="hidden" name="type" value="food">
-                        <input type="hidden" name="id" value="{{ $item->id }}">
-                        <button type="submit" style="background:none; border:none; font-size:18px; cursor:pointer; line-height:1;">
-                            {{ in_array($item->id, $favoriteFoodIds) ? '❤️' : '🤍' }}
-                        </button>
-                    </form>
-
-                    @if ($item->image)
-                        <img src="{{ asset('storage/' . $item->image) }}"  alt="{{ $item->name }}">
-                    @else
-                        <div style="width:100%; height:120px; border-radius:8px; margin-bottom:0.6rem; background: var(--cc-paper); border:1px dashed var(--cc-line); display:flex; align-items:center; justify-content:center; font-size:2rem;">🍽️</div>
-                    @endif
-                    <a href="{{ route('menu.food.show', $item) }}" style="font-weight:700; color: var(--cc-ink); text-decoration:none; padding-right:1.5rem; display:block;">{{ $item->name }}</a>
-                    <p style="font-size:0.75rem; color: var(--cc-text-muted); margin-top:0.2rem;">
-                        {{ $item->category->name ?? '' }} · Spicy {{ $item->spicy_level }}/5 @if($item->calories) · {{ $item->calories }} cal @endif
-                    </p>
-                    @if ($item->reviews_avg_rating)
-                        <p style="font-size:0.75rem; color: var(--cc-mustard-dark); margin-top:0.15rem;">{{ str_repeat('★', round($item->reviews_avg_rating)) }} {{ number_format($item->reviews_avg_rating, 1) }}</p>
-                    @endif
-                    <p class="font-mono" style="margin-top:0.5rem; font-weight:700;">{{ number_format($item->price, 2) }} EGP</p>
-
-                    <form action="{{ route('cart.add') }}" method="POST" style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed var(--cc-line);">
-                        @csrf
-                        <input type="hidden" name="type" value="food">
-                        <input type="hidden" name="id" value="{{ $item->id }}">
-                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-                            <label style="font-size:0.75rem; color: var(--cc-text-muted);">Qty</label>
-                            <input type="number" name="quantity" value="1" min="1" style="width:4rem;" class="input-cc">
+                <div class="cc-food-card">
+                    <div class="cc-food-media">
+                        @if ($item->image)
+                            <img src="{{ asset('storage/' . $item->image) }}" class="cc-food-img" alt="{{ $item->name }}">
+                        @else
+                            <div class="cc-food-fallback">🍽️</div>
+                        @endif
+                        <div class="cc-food-heart">
+                            <form action="{{ route('favorites.toggle') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="type" value="food">
+                                <input type="hidden" name="id" value="{{ $item->id }}">
+                                <button type="submit">{{ in_array($item->id, $favoriteFoodIds) ? '❤️' : '🤍' }}</button>
+                            </form>
                         </div>
-                        <button type="submit" class="btn-mustard" style="width:100%; font-size:0.8125rem;">Add to cart</button>
-                    </form>
+                    </div>
+
+                    <div class="cc-food-body">
+                        <a href="{{ route('menu.food.show', $item) }}" class="cc-food-name">{{ $item->name }}</a>
+                        <p class="cc-food-meta">
+                            {{ $item->category->name ?? '' }} · Spicy {{ $item->spicy_level }}/5 @if($item->calories) · {{ $item->calories }} cal @endif
+                        </p>
+                        @if ($item->reviews_avg_rating)
+                            <p class="cc-food-rate">{{ str_repeat('★', round($item->reviews_avg_rating)) }} {{ number_format($item->reviews_avg_rating, 1) }}</p>
+                        @endif
+
+                        <div class="cc-food-row">
+                            <p class="cc-food-price">{{ number_format($item->price, 2) }} EGP</p>
+                        </div>
+
+                        <form action="{{ route('cart.add') }}" method="POST" class="cc-food-add">
+                            @csrf
+                            <input type="hidden" name="type" value="food">
+                            <input type="hidden" name="id" value="{{ $item->id }}">
+                            <input type="number" name="quantity" value="1" min="1" class="input-cc">
+                            <button type="submit" class="btn-mustard">Add to cart</button>
+                        </form>
+                    </div>
                 </div>
             @empty
                 <p style="color: var(--cc-text-muted); grid-column:1 / -1;">No food items match these filters.</p>
             @endforelse
         </div>
 
-        <h3 class="font-display" style="font-weight:700; margin-bottom:0.75rem; color: var(--cc-ink);">Beverages</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <h3 class="font-display" style="font-weight:700; margin-bottom:0.9rem; color: var(--cc-ink); font-size:1.15rem;">🥤 Beverages</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 cc-animate-stagger">
             @forelse ($beverages as $item)
-                <div class="card-ticket" style="padding:1rem; position:relative;">
-                    <form action="{{ route('favorites.toggle') }}" method="POST" style="position:absolute; top:10px; right:10px;">
-                        @csrf
-                        <input type="hidden" name="type" value="beverage">
-                        <input type="hidden" name="id" value="{{ $item->id }}">
-                        <button type="submit" style="background:none; border:none; font-size:18px; cursor:pointer; line-height:1;">
-                            {{ in_array($item->id, $favoriteBeverageIds) ? '❤️' : '🤍' }}
-                        </button>
-                    </form>
-
-                    @if ($item->image)
-                        <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}">
-                    @else
-                        <div style="width:100%; height:120px; border-radius:8px; margin-bottom:0.6rem; background: var(--cc-paper); border:1px dashed var(--cc-line); display:flex; align-items:center; justify-content:center; font-size:2rem;">🥤</div>
-                    @endif
-                    <a href="{{ route('menu.beverage.show', $item) }}" style="font-weight:700; color: var(--cc-ink); text-decoration:none; padding-right:1.5rem; display:block;">{{ $item->name }}</a>
-                    <p style="font-size:0.75rem; color: var(--cc-text-muted); margin-top:0.2rem;">
-                        {{ $item->category->name ?? '' }} @if($item->calories) · {{ $item->calories }} cal @endif
-                    </p>
-                    @if ($item->reviews_avg_rating)
-                        <p style="font-size:0.75rem; color: var(--cc-mustard-dark); margin-top:0.15rem;">{{ str_repeat('★', round($item->reviews_avg_rating)) }} {{ number_format($item->reviews_avg_rating, 1) }}</p>
-                    @endif
-                    <p class="font-mono" style="margin-top:0.5rem; font-weight:700;">{{ number_format($item->price, 2) }} EGP</p>
-
-                    <form action="{{ route('cart.add') }}" method="POST" style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed var(--cc-line);">
-                        @csrf
-                        <input type="hidden" name="type" value="beverage">
-                        <input type="hidden" name="id" value="{{ $item->id }}">
-                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-                            <label style="font-size:0.75rem; color: var(--cc-text-muted);">Qty</label>
-                            <input type="number" name="quantity" value="1" min="1" style="width:4rem;" class="input-cc">
+                <div class="cc-food-card">
+                    <div class="cc-food-media">
+                        @if ($item->image)
+                            <img src="{{ asset('storage/' . $item->image) }}" class="cc-food-img" alt="{{ $item->name }}">
+                        @else
+                            <div class="cc-food-fallback">🥤</div>
+                        @endif
+                        <div class="cc-food-heart">
+                            <form action="{{ route('favorites.toggle') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="type" value="beverage">
+                                <input type="hidden" name="id" value="{{ $item->id }}">
+                                <button type="submit">{{ in_array($item->id, $favoriteBeverageIds) ? '❤️' : '🤍' }}</button>
+                            </form>
                         </div>
-                        <button type="submit" class="btn-mustard" style="width:100%; font-size:0.8125rem;">Add to cart</button>
-                    </form>
+                    </div>
+
+                    <div class="cc-food-body">
+                        <a href="{{ route('menu.beverage.show', $item) }}" class="cc-food-name">{{ $item->name }}</a>
+                        <p class="cc-food-meta">
+                            {{ $item->category->name ?? '' }} @if($item->calories) · {{ $item->calories }} cal @endif
+                        </p>
+                        @if ($item->reviews_avg_rating)
+                            <p class="cc-food-rate">{{ str_repeat('★', round($item->reviews_avg_rating)) }} {{ number_format($item->reviews_avg_rating, 1) }}</p>
+                        @endif
+
+                        <div class="cc-food-row">
+                            <p class="cc-food-price">{{ number_format($item->price, 2) }} EGP</p>
+                        </div>
+
+                        <form action="{{ route('cart.add') }}" method="POST" class="cc-food-add">
+                            @csrf
+                            <input type="hidden" name="type" value="beverage">
+                            <input type="hidden" name="id" value="{{ $item->id }}">
+                            <input type="number" name="quantity" value="1" min="1" class="input-cc">
+                            <button type="submit" class="btn-mustard">Add to cart</button>
+                        </form>
+                    </div>
                 </div>
             @empty
                 <p style="color: var(--cc-text-muted); grid-column:1 / -1;">No beverages match these filters.</p>

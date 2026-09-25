@@ -3,13 +3,13 @@
 
     <!-- Toggle button -->
     <button @click="chatOpen = ! chatOpen"
-            style="width:56px; height:56px; border-radius:999px; background: var(--cc-mustard); border:none; cursor:pointer; box-shadow:0 6px 18px rgba(31,59,44,0.25); font-size:1.4rem; display:flex; align-items:center; justify-content:center;">
+            style="width:56px; height:56px; border-radius:999px; background: var(--cc-mustard); border:none; cursor:pointer; box-shadow:0 10px 26px rgba(226,154,46,0.4); font-size:1.4rem; display:flex; align-items:center; justify-content:center;">
         <span x-show="!chatOpen">💬</span>
         <span x-show="chatOpen" style="display:none;">✕</span>
     </button>
 
     <!-- Chat panel -->
-    <div x-show="chatOpen" x-transition style="display:none; position:absolute; bottom:70px; right:0; width:320px; max-width:88vw; background: var(--cc-surface); border:1px solid var(--cc-line); border-radius:14px; box-shadow:0 12px 30px rgba(0,0,0,0.18); overflow:hidden;">
+    <div x-show="chatOpen" x-transition style="display:none; position:absolute; bottom:70px; right:0; width:320px; max-width:88vw; background: var(--cc-surface); border:1px solid var(--cc-line); border-radius:16px; box-shadow:0 20px 44px rgba(43,27,16,0.25); overflow:hidden;">
 
         <div style="background: var(--cc-ink); color: var(--cc-paper); padding:0.75rem 1rem; font-weight:700; font-family:'Baloo 2',sans-serif; display:flex; justify-content:space-between; align-items:center;">
             <span>{{ auth()->user()->isAdmin() ? 'Admin Assistant' : 'CravingCorner Assistant' }}</span>

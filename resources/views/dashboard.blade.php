@@ -19,8 +19,9 @@
             return ['label' => $date->format('D'), 'total' => (int) ($ordersByDay[$date->toDateString()] ?? 0)];
         });
     } else {
-        $recentOrders = auth()->user()->orders()->latest()->take(3)->get();
+        $recentOrders = auth()->user()->orders()->latest()->take(4)->get();
         $favoriteCount = auth()->user()->favorites()->count();
+        $cartCount = collect(session('cart', []))->sum('quantity');
 
         // This customer's spending over the last 6 months.
         $spendByMonth = auth()->user()->orders()
@@ -48,81 +49,160 @@
     }
 
     $categories = \App\Models\Category::withCount(['foodItems', 'beverages'])->get();
+
+    $orderStatusIcon = fn ($status) => match ($status) {
+        'pending' => '🕓', 'preparing' => '👩‍🍳', 'ready' => '📦',
+        'delivered', 'completed' => '✅', 'cancelled' => '✕', default => '🧾',
+    };
 @endphp
 
 <x-app-layout>
     <div class="py-8" style="max-width:80rem; margin:0 auto; padding-left:1.5rem; padding-right:1.5rem;">
 
-        <!-- Hero -->
-        <div class="cc-hero">
-            <div class="cc-hero-badge">
-                <x-application-logo style="width:2.1rem; height:2.1rem;" />
-            </div>
-            <div>
-                <p class="cc-hero-title">Welcome back, {{ auth()->user()->name }} 👋</p>
-                <p class="cc-hero-sub">
-                    @if ($isAdmin)
-                        Here's what's happening at CravingCorner today.
-                    @else
-                        What are you craving today?
-                    @endif
-                </p>
-            </div>
-        </div>
-
         @if ($isAdmin)
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 cc-animate-stagger">
-                <a href="{{ route('admin.users.index') }}" class="card-ticket" style="padding:1.25rem; text-decoration:none; display:block;">
-                    <p style="font-size:0.75rem; text-transform:uppercase; color: var(--cc-text-muted);">Customers</p>
-                    <p class="font-mono" style="font-size:1.75rem; color: var(--cc-ink); margin-top:0.25rem;">{{ $customerCount }}</p>
-                </a>
-                <a href="{{ route('admin.orders.index') }}" class="card-ticket" style="padding:1.25rem; text-decoration:none; display:block;">
-                    <p style="font-size:0.75rem; text-transform:uppercase; color: var(--cc-text-muted);">Orders today</p>
-                    <p class="font-mono" style="font-size:1.75rem; color: var(--cc-ink); margin-top:0.25rem;">{{ $ordersToday }}</p>
-                </a>
-                <a href="{{ route('admin.food-items.index') }}" class="card-ticket" style="padding:1.25rem; text-decoration:none; display:block;">
-                    <p style="font-size:0.75rem; text-transform:uppercase; color: var(--cc-text-muted);">Low stock items</p>
-                    <p class="font-mono" style="font-size:1.75rem; color: var(--cc-clay); margin-top:0.25rem;">{{ $lowStockCount }}</p>
-                </a>
+            {{-- ===================== ADMIN HERO ===================== --}}
+            <div class="cc-hero-xl">
+                <div>
+                    <span class="cc-hero-xl-eyebrow">Admin dashboard</span>
+                    <h1 class="cc-hero-xl-title">Welcome back, {{ auth()->user()->name }} 👋</h1>
+                    <p class="cc-hero-xl-sub">Here's what's happening at CravingCorner today.</p>
+                    <div class="cc-hero-xl-actions">
+                        <a href="{{ route('admin.statistics.index') }}" class="btn-mustard">View full statistics</a>
+                        <a href="{{ route('admin.orders.index') }}" class="btn-outline" style="background:rgba(255,255,255,0.08); color:#FBF3E4; border-color:rgba(255,255,255,0.2);">Manage orders</a>
+                    </div>
+                </div>
+                <div class="cc-hero-xl-stats">
+                    <div class="cc-stat-pill">
+                        <span class="cc-stat-num">{{ $customerCount }}</span>
+                        <span class="cc-stat-lbl">Customers</span>
+                    </div>
+                    <div class="cc-stat-pill">
+                        <span class="cc-stat-num">{{ $ordersToday }}</span>
+                        <span class="cc-stat-lbl">Orders today</span>
+                    </div>
+                    <div class="cc-stat-pill">
+                        <span class="cc-stat-num">{{ $lowStockCount }}</span>
+                        <span class="cc-stat-lbl">Low stock</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="card-plain" style="padding:1.1rem; margin-bottom:2rem;">
-                <p style="font-weight:700; font-family:'Baloo 2',sans-serif; margin-bottom:0.6rem;">Orders — last 7 days</p>
-                <canvas id="dashOrdersTrend" height="90"></canvas>
+            {{-- ===================== ADMIN BENTO ROW ===================== --}}
+            <div class="grid grid-cols-1 md:grid-cols-[1.7fr_1fr] gap-5 mb-10">
+                <div class="card-plain" style="padding:1.5rem;">
+                    <div class="cc-chart-head">
+                        <div class="cc-icon-badge cc-icon-badge-mustard">📈</div>
+                        <div>
+                            <h4>Orders — last 7 days</h4>
+                            <p>Daily order volume across the whole platform</p>
+                        </div>
+                    </div>
+                    <canvas id="dashOrdersTrend" height="90"></canvas>
+                </div>
+
+                <div class="grid grid-cols-1 gap-5">
+                    <a href="{{ route('admin.food-items.index') }}" class="card-plain cc-stat-tile">
+                        <div class="cc-icon-badge cc-icon-badge-clay">⚠️</div>
+                        <div>
+                            <p class="cc-stat-tile-num" style="color:var(--cc-clay);">{{ $lowStockCount }}</p>
+                            <p class="cc-stat-tile-lbl">Items running low</p>
+                        </div>
+                    </a>
+                    <a href="{{ route('admin.users.index') }}" class="card-plain cc-stat-tile">
+                        <div class="cc-icon-badge cc-icon-badge-sage">👥</div>
+                        <div>
+                            <p class="cc-stat-tile-num">{{ $customerCount }}</p>
+                            <p class="cc-stat-tile-lbl">Registered customers</p>
+                        </div>
+                    </a>
+                </div>
             </div>
         @else
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 cc-animate-stagger">
-                <a href="{{ route('menu.index') }}" class="btn-mustard" style="padding:1.25rem; justify-content:flex-start; text-align:left; flex-direction:column; align-items:flex-start; height:auto;">
-                    <span style="font-family:'Baloo 2', sans-serif; font-size:1.1rem;">Browse the menu</span>
-                    <span style="font-size:0.8rem; font-weight:500; opacity:0.8;">See what's cooking today</span>
-                </a>
-                <a href="{{ route('favorites.index') }}" class="card-ticket" style="padding:1.25rem; text-decoration:none; display:block;">
-                    <p style="font-size:0.75rem; text-transform:uppercase; color: var(--cc-text-muted);">Favorites</p>
-                    <p class="font-mono" style="font-size:1.75rem; color: var(--cc-ink); margin-top:0.25rem;">{{ $favoriteCount }}</p>
-                </a>
-                <a href="{{ route('recommendations.index') }}" class="card-ticket" style="padding:1.25rem; text-decoration:none; display:block;">
-                    <p style="font-size:0.95rem; font-weight:700; color: var(--cc-ink);">✨ Recommended for you</p>
-                    <p style="font-size:0.8rem; color: var(--cc-text-muted); margin-top:0.25rem;">See your top matches</p>
-                </a>
+            {{-- ===================== CUSTOMER HERO ===================== --}}
+            <div class="cc-hero-xl">
+                <div>
+                    <span class="cc-hero-xl-eyebrow">Home</span>
+                    <h1 class="cc-hero-xl-title">Welcome back, {{ auth()->user()->name }} 👋</h1>
+                    <p class="cc-hero-xl-sub">What are you craving today? Browse the menu or let us surprise you.</p>
+                    <div class="cc-hero-xl-actions">
+                        <a href="{{ route('menu.index') }}" class="btn-mustard">Browse the menu</a>
+                        <a href="{{ route('surprise-me') }}" class="btn-outline" style="background:rgba(255,255,255,0.08); color:#FBF3E4; border-color:rgba(255,255,255,0.2);">🎲 Surprise me</a>
+                    </div>
+                </div>
+                <div class="cc-hero-xl-stats">
+                    <div class="cc-stat-pill">
+                        <span class="cc-stat-num">{{ $favoriteCount }}</span>
+                        <span class="cc-stat-lbl">Favorites</span>
+                    </div>
+                    <div class="cc-stat-pill">
+                        <span class="cc-stat-num">{{ $cartCount }}</span>
+                        <span class="cc-stat-lbl">In cart</span>
+                    </div>
+                </div>
             </div>
 
-            <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:1.5rem; margin-bottom:2rem;">
-                <div class="card-plain" style="padding:1.1rem;">
-                    <p style="font-weight:700; font-family:'Baloo 2',sans-serif; margin-bottom:0.6rem;">Your spending — last 6 months</p>
+            {{-- ===================== CUSTOMER BENTO ROW ===================== --}}
+            <div class="grid grid-cols-1 md:grid-cols-[1.6fr_1fr] gap-5 mb-10">
+                <a href="{{ route('recommendations.index') }}" class="cc-feature-card" style="text-decoration:none;">
+                    <span class="cc-feature-eyebrow">✨ AI picks</span>
+                    <p class="cc-feature-title">Recommended for you</p>
+                    <p class="cc-feature-sub">Matched to your taste and order history — see how well each item fits.</p>
+                    <span class="btn-mustard">See your top matches</span>
+                </a>
+
+                <div class="grid grid-cols-1 gap-5">
+                    <a href="{{ route('favorites.index') }}" class="card-plain cc-stat-tile">
+                        <div class="cc-icon-badge cc-icon-badge-clay">❤️</div>
+                        <div>
+                            <p class="cc-stat-tile-num">{{ $favoriteCount }}</p>
+                            <p class="cc-stat-tile-lbl">Saved favorites</p>
+                        </div>
+                    </a>
+                    <a href="{{ route('cart.index') }}" class="card-plain cc-stat-tile">
+                        <div class="cc-icon-badge cc-icon-badge-mustard">🛒</div>
+                        <div>
+                            <p class="cc-stat-tile-num">{{ $cartCount }}</p>
+                            <p class="cc-stat-tile-lbl">Items in cart</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            {{-- ===================== CUSTOMER CHARTS ===================== --}}
+            <div class="grid grid-cols-1 md:grid-cols-[1.6fr_1fr] gap-5 mb-10">
+                <div class="card-plain" style="padding:1.5rem;">
+                    <div class="cc-chart-head">
+                        <div class="cc-icon-badge cc-icon-badge-mustard">💳</div>
+                        <div>
+                            <h4>Your spending</h4>
+                            <p>Last 6 months, paid orders only</p>
+                        </div>
+                    </div>
                     <canvas id="dashSpendingTrend" height="120"></canvas>
                 </div>
-                <div class="card-plain" style="padding:1.1rem;">
-                    <p style="font-weight:700; font-family:'Baloo 2',sans-serif; margin-bottom:0.6rem;">Where it goes</p>
+                <div class="card-plain" style="padding:1.5rem;">
+                    <div class="cc-chart-head">
+                        <div class="cc-icon-badge cc-icon-badge-sage">🥧</div>
+                        <div>
+                            <h4>Where it goes</h4>
+                            <p>Spend by category</p>
+                        </div>
+                    </div>
                     <canvas id="dashCategorySpend" height="120"></canvas>
                 </div>
             </div>
         @endif
 
-        <!-- Category cards: full-bleed image + dark overlay + hover zoom -->
-        <h3 class="font-display" style="font-weight:700; margin-bottom:0.75rem; color: var(--cc-ink);">
-            {{ $isAdmin ? 'Categories' : 'Browse by category' }}
-        </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8 cc-animate-stagger">
+        {{-- ===================== CATEGORIES ===================== --}}
+        <div class="cc-section-head">
+            <h3>{{ $isAdmin ? 'Categories' : 'Browse by category' }}</h3>
+            @if ($isAdmin)
+                <a href="{{ route('admin.categories.index') }}" class="cc-see-all">Manage categories →</a>
+            @else
+                <a href="{{ route('menu.index') }}" class="cc-see-all">See full menu →</a>
+            @endif
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mb-10 cc-animate-stagger">
             @foreach ($categories as $cat)
                 @php
                     $count = $cat->type === 'food' ? $cat->food_items_count : $cat->beverages_count;
@@ -151,20 +231,23 @@
                 or ask the assistant (bottom-right) directly.
             </p>
         @else
+            <div class="cc-section-head">
+                <h3>Recent orders</h3>
+                <a href="{{ route('orders.index') }}" class="cc-see-all">View all orders →</a>
+            </div>
             <div class="card-plain" style="overflow:hidden;">
-                <div style="padding: 0.9rem 1.25rem; border-bottom:1px solid var(--cc-line); font-weight:700; font-family:'Baloo 2',sans-serif;">
-                    Recent orders
-                </div>
                 @forelse ($recentOrders as $order)
-                    <a href="{{ route('orders.show', $order) }}" style="display:flex; justify-content:space-between; padding:0.75rem 1.25rem; border-bottom:1px solid var(--cc-line); text-decoration:none; color: var(--cc-ink); font-size:0.875rem;">
-                        <span>#{{ $order->id }} — {{ $order->created_at->format('M j') }}</span>
-                        <span>
-                            <span class="badge badge-mustard">{{ $order->status }}</span>
-                            <span class="font-mono" style="margin-left:0.5rem;">{{ number_format($order->total_price, 2) }} EGP</span>
-                        </span>
+                    <a href="{{ route('orders.show', $order) }}" class="cc-timeline-row">
+                        <div class="cc-icon-badge cc-icon-badge-ink" style="font-size:1.1rem;">{{ $orderStatusIcon($order->status) }}</div>
+                        <div class="cc-timeline-main">
+                            <p class="cc-timeline-title">Order #{{ $order->id }}</p>
+                            <p class="cc-timeline-meta">{{ $order->created_at->format('M j, g:i A') }}</p>
+                        </div>
+                        <span class="badge badge-mustard">{{ $order->status }}</span>
+                        <span class="font-mono" style="min-width:5.5rem; text-align:right; font-weight:700;">{{ number_format($order->total_price, 2) }} EGP</span>
                     </a>
                 @empty
-                    <p style="padding: 1.25rem; color: var(--cc-text-muted); font-size:0.875rem;">No orders yet — head to the menu to place your first one.</p>
+                    <p style="padding: 1.5rem; color: var(--cc-text-muted); font-size:0.875rem;">No orders yet — head to the menu to place your first one.</p>
                 @endforelse
             </div>
         @endif
@@ -173,11 +256,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-            const ink = cssVar('--cc-ink') || '#1F3B2C';
-            const mustard = cssVar('--cc-mustard') || '#E2A63B';
-            const sage = cssVar('--cc-sage') || '#6B9080';
-            const clay = cssVar('--cc-clay') || '#C1443B';
-            const line = cssVar('--cc-line') || '#D8CFBA';
+            const ink = cssVar('--cc-ink') || '#2B1B10';
+            const mustard = cssVar('--cc-mustard') || '#E29A2E';
+            const sage = cssVar('--cc-sage') || '#4C9A6B';
+            const clay = cssVar('--cc-clay') || '#C1543D';
+            const line = cssVar('--cc-line') || '#ECE3D6';
 
             @if ($isAdmin)
                 new Chart(document.getElementById('dashOrdersTrend'), {
@@ -187,8 +270,8 @@
                         datasets: [{
                             label: 'Orders',
                             data: @json($ordersTrend->pluck('total')),
-                            borderColor: ink,
-                            backgroundColor: ink + '22',
+                            borderColor: mustard,
+                            backgroundColor: mustard + '26',
                             tension: 0.35,
                             fill: true,
                             pointRadius: 3,
@@ -208,7 +291,7 @@
                             label: 'EGP spent',
                             data: @json($spendingTrend->pluck('total')),
                             borderColor: mustard,
-                            backgroundColor: mustard + '33',
+                            backgroundColor: mustard + '26',
                             tension: 0.35,
                             fill: true,
                             pointRadius: 3,
@@ -226,7 +309,7 @@
                         labels: @json($categorySpend->keys()),
                         datasets: [{
                             data: @json($categorySpend->values()),
-                            backgroundColor: [mustard, sage, clay, '#C98A22', ink, '#7A7566'],
+                            backgroundColor: [mustard, sage, clay, '#8C7A68', ink, '#B3701A'],
                             borderWidth: 0,
                         }],
                     },
