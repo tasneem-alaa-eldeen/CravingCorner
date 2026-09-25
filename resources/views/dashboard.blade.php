@@ -1,4 +1,6 @@
 @php
+    use Illuminate\Support\Carbon;
+
     $isAdmin = auth()->user()->isAdmin();
 
     if ($isAdmin) {
@@ -6,9 +8,43 @@
         $ordersToday = \App\Models\Order::whereDate('created_at', today())->count();
         $lowStockCount = \App\Models\FoodItem::where('available_quantity', '<=', 5)->count()
             + \App\Models\Beverage::where('available_quantity', '<=', 5)->count();
+
+        // Orders per day, last 7 days — small trend chart on the admin home.
+        $ordersByDay = \App\Models\Order::where('created_at', '>=', now()->subDays(6)->startOfDay())
+            ->selectRaw('DATE(created_at) as day, COUNT(*) as total')
+            ->groupBy('day')
+            ->pluck('total', 'day');
+        $ordersTrend = collect(range(6, 0))->map(function ($daysAgo) use ($ordersByDay) {
+            $date = Carbon::today()->subDays($daysAgo);
+            return ['label' => $date->format('D'), 'total' => (int) ($ordersByDay[$date->toDateString()] ?? 0)];
+        });
     } else {
         $recentOrders = auth()->user()->orders()->latest()->take(3)->get();
         $favoriteCount = auth()->user()->favorites()->count();
+
+        // This customer's spending over the last 6 months.
+        $spendByMonth = auth()->user()->orders()
+            ->where('payment_status', 'paid')
+            ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
+            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as ym, SUM(total_price) as total")
+            ->groupBy('ym')
+            ->pluck('total', 'ym');
+        $spendingTrend = collect(range(5, 0))->map(function ($monthsAgo) use ($spendByMonth) {
+            $month = Carbon::now()->subMonths($monthsAgo);
+            return ['label' => $month->format('M'), 'total' => (float) ($spendByMonth[$month->format('Y-m')] ?? 0)];
+        });
+
+        // Spend split by category (food vs beverage categories), from order history.
+        $categorySpend = \App\Models\OrderItem::whereHas('order', fn ($q) => $q->where('user_id', auth()->id()))
+            ->get(['itemable_type', 'itemable_id', 'subtotal'])
+            ->map(function ($row) {
+                $item = $row->itemable_type::with('category')->find($row->itemable_id);
+                return ['category' => $item->category->name ?? 'Other', 'subtotal' => (float) $row->subtotal];
+            })
+            ->groupBy('category')
+            ->map(fn ($rows) => $rows->sum('subtotal'))
+            ->sortDesc()
+            ->take(6);
     }
 
     $categories = \App\Models\Category::withCount(['foodItems', 'beverages'])->get();
@@ -49,6 +85,11 @@
                     <p class="font-mono" style="font-size:1.75rem; color: var(--cc-clay); margin-top:0.25rem;">{{ $lowStockCount }}</p>
                 </a>
             </div>
+
+            <div class="card-plain" style="padding:1.1rem; margin-bottom:2rem;">
+                <p style="font-weight:700; font-family:'Baloo 2',sans-serif; margin-bottom:0.6rem;">Orders — last 7 days</p>
+                <canvas id="dashOrdersTrend" height="90"></canvas>
+            </div>
         @else
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 cc-animate-stagger">
                 <a href="{{ route('menu.index') }}" class="btn-mustard" style="padding:1.25rem; justify-content:flex-start; text-align:left; flex-direction:column; align-items:flex-start; height:auto;">
@@ -59,10 +100,21 @@
                     <p style="font-size:0.75rem; text-transform:uppercase; color: var(--cc-text-muted);">Favorites</p>
                     <p class="font-mono" style="font-size:1.75rem; color: var(--cc-ink); margin-top:0.25rem;">{{ $favoriteCount }}</p>
                 </a>
-                <a href="{{ route('surprise-me') }}" class="card-ticket" style="padding:1.25rem; text-decoration:none; display:block;">
-                    <p style="font-size:0.95rem; font-weight:700; color: var(--cc-ink);">🎲 Surprise Me</p>
-                    <p style="font-size:0.8rem; color: var(--cc-text-muted); margin-top:0.25rem;">Not sure what to order?</p>
+                <a href="{{ route('recommendations.index') }}" class="card-ticket" style="padding:1.25rem; text-decoration:none; display:block;">
+                    <p style="font-size:0.95rem; font-weight:700; color: var(--cc-ink);">✨ Recommended for you</p>
+                    <p style="font-size:0.8rem; color: var(--cc-text-muted); margin-top:0.25rem;">See your top matches</p>
                 </a>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:1.5rem; margin-bottom:2rem;">
+                <div class="card-plain" style="padding:1.1rem;">
+                    <p style="font-weight:700; font-family:'Baloo 2',sans-serif; margin-bottom:0.6rem;">Your spending — last 6 months</p>
+                    <canvas id="dashSpendingTrend" height="120"></canvas>
+                </div>
+                <div class="card-plain" style="padding:1.1rem;">
+                    <p style="font-weight:700; font-family:'Baloo 2',sans-serif; margin-bottom:0.6rem;">Where it goes</p>
+                    <canvas id="dashCategorySpend" height="120"></canvas>
+                </div>
             </div>
         @endif
 
@@ -117,4 +169,70 @@
             </div>
         @endif
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            const ink = cssVar('--cc-ink') || '#1F3B2C';
+            const mustard = cssVar('--cc-mustard') || '#E2A63B';
+            const sage = cssVar('--cc-sage') || '#6B9080';
+            const clay = cssVar('--cc-clay') || '#C1443B';
+            const line = cssVar('--cc-line') || '#D8CFBA';
+
+            @if ($isAdmin)
+                new Chart(document.getElementById('dashOrdersTrend'), {
+                    type: 'line',
+                    data: {
+                        labels: @json($ordersTrend->pluck('label')),
+                        datasets: [{
+                            label: 'Orders',
+                            data: @json($ordersTrend->pluck('total')),
+                            borderColor: ink,
+                            backgroundColor: ink + '22',
+                            tension: 0.35,
+                            fill: true,
+                            pointRadius: 3,
+                        }],
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: line } }, x: { grid: { display: false } } },
+                    },
+                });
+            @else
+                new Chart(document.getElementById('dashSpendingTrend'), {
+                    type: 'line',
+                    data: {
+                        labels: @json($spendingTrend->pluck('label')),
+                        datasets: [{
+                            label: 'EGP spent',
+                            data: @json($spendingTrend->pluck('total')),
+                            borderColor: mustard,
+                            backgroundColor: mustard + '33',
+                            tension: 0.35,
+                            fill: true,
+                            pointRadius: 3,
+                        }],
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, grid: { color: line } }, x: { grid: { display: false } } },
+                    },
+                });
+
+                new Chart(document.getElementById('dashCategorySpend'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: @json($categorySpend->keys()),
+                        datasets: [{
+                            data: @json($categorySpend->values()),
+                            backgroundColor: [mustard, sage, clay, '#C98A22', ink, '#7A7566'],
+                            borderWidth: 0,
+                        }],
+                    },
+                    options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } } },
+                });
+            @endif
+        });
+    </script>
 </x-app-layout>

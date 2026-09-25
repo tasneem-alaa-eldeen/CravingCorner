@@ -12,6 +12,7 @@
     ] : [
         ['href' => route('dashboard'), 'label' => 'Home', 'icon' => '🏠', 'active' => request()->routeIs('dashboard')],
         ['href' => route('menu.index'), 'label' => 'Menu', 'icon' => '📋', 'active' => request()->routeIs('menu.*')],
+        ['href' => route('recommendations.index'), 'label' => 'For You', 'icon' => '✨', 'active' => request()->routeIs('recommendations.*')],
         ['href' => route('cart.index'), 'label' => 'Cart', 'icon' => '🛒', 'active' => request()->routeIs('cart.*')],
         ['href' => route('orders.index'), 'label' => 'My Orders', 'icon' => '🧾', 'active' => request()->routeIs('orders.*')],
         ['href' => route('favorites.index'), 'label' => 'Favorites', 'icon' => '❤️', 'active' => request()->routeIs('favorites.*')],

@@ -16,6 +16,7 @@ use App\Http\Controllers\Customer\FavoriteController;
 use App\Http\Controllers\Customer\ReviewController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Customer\SurpriseController;
+use App\Http\Controllers\Customer\RecommendationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -32,26 +33,25 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('food-items', FoodItemController::class);
     Route::resource('beverages', BeverageController::class);
     Route::resource('orders', AdminOrderController::class)->only(['index', 'show', 'update']);
-Route::resource('users', AdminUserController::class)->only(['index', 'show', 'update', 'destroy']);
-Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics.index');
+    Route::resource('users', AdminUserController::class)->only(['index', 'show', 'update', 'destroy']);
+    Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics.index');
 });
+
 Route::middleware('auth')->group(function () {
     Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
     Route::get('/menu/food/{foodItem}', [MenuController::class, 'showFood'])->name('menu.food.show');
     Route::get('/menu/beverages/{beverage}', [MenuController::class, 'showBeverage'])->name('menu.beverage.show');
-Route::middleware('auth')->group(function () {
+
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
-    Route::middleware('auth')->group(function () {
-    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
-});
 
-});
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
@@ -61,6 +61,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/my-orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/my-orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/my-orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
+    // AI recommendations ("For You") page with match % per item.
+    Route::get('/recommendations', [RecommendationController::class, 'index'])->name('recommendations.index');
 });
 
 Route::middleware('auth')->group(function () {
@@ -72,4 +75,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/preferences', [PreferenceController::class, 'edit'])->name('preferences.edit');
     Route::post('/preferences', [PreferenceController::class, 'update'])->name('preferences.update');
 });
+
 Route::get('/surprise-me', SurpriseController::class)->name('surprise-me');
